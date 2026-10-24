@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens (space-separated RGB so Tailwind can apply alpha).
+   Direction: an analyst's drafting table — cool graph-paper ground, deep teal-navy ink, one cobalt accent. */
+:root {
+  --paper: 238 242 245;
+  --surface: 255 255 255;
+  --ink: 15 36 48;
+  --muted: 91 107 117;
+  --rule: 213 221 226;
+  --accent: 36 71 245;
+  --accent-soft: 227 233 255;
+  --ok: 30 158 117;
+  --warn: 214 142 36;
+  --danger: 214 69 93;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: rgb(var(--paper));
+  color: rgb(var(--ink));
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+
+/* The memorable element: charts sit on drafting-grid paper. */
+.chart-grid {
+  background-color: rgb(var(--surface));
+  background-image:
+    linear-gradient(rgb(var(--rule) / 0.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--rule) / 0.55) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Markdown answer typography */
+.answer-prose {
+  line-height: 1.65;
+  max-width: 68ch;
+}
+.answer-prose p + p,
+.answer-prose ul,
+.answer-prose ol {
+  margin-top: 0.6rem;
+}
+.answer-prose ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.answer-prose ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.answer-prose li + li {
+  margin-top: 0.25rem;
+}
+.answer-prose strong {
+  font-weight: 650;
+}
+.answer-prose code {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.85em;
+  background: rgb(var(--accent-soft));
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+.answer-prose table {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+}
+.answer-prose th,
+.answer-prose td {
+  border-bottom: 1px solid rgb(var(--rule));
+  padding: 0.3rem 0.75rem 0.3rem 0;
+  text-align: left;
+}
+
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

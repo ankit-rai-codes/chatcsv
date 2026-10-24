@@ -1,0 +1,170 @@
+{
+  "dataset": "sample_data (Online Shop 2024)",
+  "generated_with": "pandas on the shipped CSVs",
+  "questions": [
+    {
+      "id": "count_orders",
+      "question": "How many orders are there in total?",
+      "reference_sql": "SELECT count(*) AS orders FROM orders",
+      "expected": {
+        "orders": 15000
+      },
+      "tags": [
+        "single-table",
+        "scalar"
+      ]
+    },
+    {
+      "id": "total_revenue",
+      "question": "What is the total revenue?",
+      "reference_sql": "SELECT round(sum(total_price),2) AS revenue FROM orders",
+      "expected": {
+        "revenue": 42495704.81
+      },
+      "tags": [
+        "single-table",
+        "scalar",
+        "ambiguous-metric"
+      ]
+    },
+    {
+      "id": "revenue_by_category",
+      "question": "Show revenue by product category",
+      "reference_sql": "SELECT p.category, round(sum(oi.quantity*oi.price_at_purchase),2) AS revenue FROM order_items oi JOIN products p ON p.product_id=oi.product_id GROUP BY 1 ORDER BY 2 DESC",
+      "expected": {
+        "Electronics": 15247167.14,
+        "Home & Kitchen": 11182785.9,
+        "Accessories": 9833968.69,
+        "Furniture": 6231783.08
+      },
+      "tags": [
+        "multi-file",
+        "join",
+        "chart:bar"
+      ]
+    },
+    {
+      "id": "orders_last_6_months",
+      "question": "Show me the number of orders per month over the last 6 months",
+      "reference_sql": "SELECT date_trunc('month', order_date) AS month, count(*) AS orders FROM orders WHERE order_date > (SELECT max(order_date) FROM orders) - INTERVAL 6 MONTH GROUP BY 1 ORDER BY 1",
+      "expected": {
+        "2024-05": 1098,
+        "2024-06": 1190,
+        "2024-07": 1320,
+        "2024-08": 1308,
+        "2024-09": 1242,
+        "2024-10": 1355,
+        "2024-11": 132
+      },
+      "anchor_date": "2024-11-04",
+      "tags": [
+        "relative-time",
+        "chart:line"
+      ]
+    },
+    {
+      "id": "avg_rating_by_category",
+      "question": "What is the average review rating per category?",
+      "reference_sql": "SELECT p.category, round(avg(r.rating),2) AS avg_rating FROM reviews r JOIN products p ON p.product_id=r.product_id GROUP BY 1 ORDER BY 2 DESC",
+      "expected": {
+        "Accessories": 2.95,
+        "Home & Kitchen": 2.74,
+        "Electronics": 2.69,
+        "Furniture": 2.64
+      },
+      "tags": [
+        "multi-file",
+        "join"
+      ]
+    },
+    {
+      "id": "payment_status",
+      "question": "How many payments are completed, pending and failed?",
+      "reference_sql": "SELECT transaction_status, count(*) AS payments FROM payment GROUP BY 1 ORDER BY 2 DESC",
+      "expected": {
+        "Completed": 12000,
+        "Pending": 1500,
+        "Failed": 1500
+      },
+      "tags": [
+        "single-table",
+        "category-values"
+      ]
+    },
+    {
+      "id": "top5_products_units",
+      "question": "Which 5 products sold the most units?",
+      "reference_sql": "SELECT p.product_name, sum(oi.quantity) AS units FROM order_items oi JOIN products p ON p.product_id=oi.product_id GROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+      "expected_top_units": [
+        2280,
+        2072,
+        2031,
+        2030,
+        2024
+      ],
+      "tags": [
+        "multi-file",
+        "ranking",
+        "ties-possible"
+      ]
+    },
+    {
+      "id": "delivered_by_carrier",
+      "question": "How many delivered shipments does each carrier have?",
+      "reference_sql": "SELECT carrier, count(*) AS delivered FROM shipments WHERE shipment_status='Delivered' GROUP BY 1 ORDER BY 1",
+      "expected": {
+        "DHL": 1810,
+        "FedEx": 1760,
+        "UPS": 1804
+      },
+      "tags": [
+        "single-table",
+        "filter"
+      ]
+    },
+    {
+      "id": "customers_with_orders",
+      "question": "How many distinct customers have placed an order?",
+      "reference_sql": "SELECT count(DISTINCT customer_id) AS customers FROM orders",
+      "expected": {
+        "customers": 10000
+      },
+      "tags": [
+        "single-table",
+        "scalar"
+      ]
+    },
+    {
+      "id": "failed_payment_amount",
+      "question": "What is the total amount of failed payments?",
+      "reference_sql": "SELECT round(sum(amount),2) AS failed_amount FROM payment WHERE transaction_status='Failed'",
+      "expected": {
+        "failed_amount": 541406.89
+      },
+      "tags": [
+        "single-table",
+        "filter"
+      ]
+    },
+    {
+      "id": "followup_breakdown",
+      "conversation": [
+        "Show revenue by product category",
+        "Now break it down by payment method"
+      ],
+      "note": "Multi-turn: second question must reuse the first query and add payment_method (only 'Credit Card' exists in this data).",
+      "tags": [
+        "multi-turn"
+      ]
+    },
+    {
+      "id": "unanswerable",
+      "question": "What is the customers' average age?",
+      "expected_behavior": "needs_query=false; explains there is no age/birthdate column; no hallucinated number.",
+      "tags": [
+        "negative",
+        "hallucination"
+      ]
+    }
+  ]
+}
